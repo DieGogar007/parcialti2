@@ -1,0 +1,44 @@
+---
+- name: Instalación y configuración de MySQL
+  hosts: all
+  remote_user: azureuser
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Installing Mysql and dependencies
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - mysql-server
+        - mysql-client
+        - python3-mysqldb
+        - libmysqlclient-dev
+      become: yes
+    
+    - name: start and enable mysql service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: creating mysql user (medium_post)
+      mysql_user:
+        name: "test"
+        password: "root"
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+    
+    - name: Configurar MySQL para escuchar en cualquier IP
+      lineinfile:
+        dest: /etc/mysql/mysql.conf.d/mysqld.cnf  # Ruta al archivo de configuración de MySQL
+        line: "bind-address = 0.0.0.0"
+
+    - name: Abrir el puerto 3306 en el firewall
+      ufw:
+        rule: allow
+        port: 3306
+      notify: Reload UFW  # Notificar para recargar el firewall
