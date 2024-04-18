@@ -1,0 +1,30 @@
+name: App Build and Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    outputs:
+      tag_id: ${{ steps.date.outputs.date }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get timestamp # get the date of the build
+      id: date
+      run: echo "date=$(TZ=':America/Bogota' date +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag digarciao007/pruebadocker:${{ steps.date.outputs.date }}
+    - name: Login to Dockerhub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Push the Docker image to Dockerhub
+      run: docker push digarciao007/pruebadocker:${{ steps.date.outputs.date }}
