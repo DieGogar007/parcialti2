@@ -115,7 +115,7 @@ resource "tls_private_key" "ssh_key" {
 
 resource "local_sensitive_file" "private_key" {
   content = tls_private_key.ssh_key.private_key_openssh
-  filename          = "priv_key.ssh"
+  filename          = "${path.module}/priv_key.ssh"
   file_permission   = "0600"
 }
 
@@ -157,7 +157,7 @@ resource "local_file" "ansible_inventory" {
     ssh_keyfile = format("%s/%s", abspath(path.root), "priv_key.ssh")
 
   })
-  filename = "inventory"
+  filename = "${path.module}/inventory"
 }
 
 resource "null_resource" "run_ansible" {
