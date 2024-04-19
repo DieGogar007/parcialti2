@@ -54,7 +54,7 @@
 
     - name: Copiar datos de muestra a la máquina remota
       copy:
-        src: /home/denalyn/Documentos/PORFAVORDIOSITO/script.sql
+        src: ./script.sql
         dest: /tmp/dump.sql
 
     - name: Insertar datos de muestra en la base de datos
