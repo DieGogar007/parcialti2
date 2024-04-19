@@ -1,0 +1,67 @@
+---
+- name: Configuración de MySQL en una máquina virtual
+  hosts: all
+  vars:
+    mysql_user: denalyn
+    mysql_password: denalyn123
+
+  become: true
+  become_user: root
+  
+  tasks:
+    - name: Actualizar paquetes
+      apt:
+        update_cache: yes
+    
+    - name: Instalar PyMySQL
+      apt:
+        name: python3-pymysql
+        state: present
+      become: true
+
+    - name: Instalar MySQL
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Iniciar servicio
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Check for sync_binlog setting
+      community.mysql.mysql_variables:
+        variable: sync_binlog
+        login_unix_socket: /run/mysqld/mysqld.sock
+
+    - name: Crear un nuevo usuario 
+      community.mysql.mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: "*.*:ALL"
+        state: present
+        login_unix_socket: /run/mysqld/mysqld.sock
+        column_case_sensitive: false
+
+    - name: Crear una nueva base de datos 
+      community.mysql.mysql_db:
+        name: escuadra_db
+        state: present
+        login_unix_socket: /run/mysqld/mysqld.sock
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+
+    - name: Copiar datos de muestra a la máquina remota
+      copy:
+        src: /home/denalyn/Documentos/PORFAVORDIOSITO/script.sql
+        dest: /tmp/dump.sql
+
+    - name: Insertar datos de muestra en la base de datos
+      community.mysql.mysql_db:
+        name: escuadra_db
+        state: import
+        target: /tmp/dump.sql
+        login_unix_socket: /run/mysqld/mysqld.sock
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
