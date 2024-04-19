@@ -165,7 +165,7 @@ resource "null_resource" "run_ansible" {
 
   provisioner "local-exec" {
     
-    command = "sleep 60 && ansible-playbook -i 'inventory' --private-key 'priv_key.ssh' vm.yaml"
+    command = "sleep 60 && ansible-playbook -i 'inventory' --private-key 'priv_key.ssh' vm.yaml -vvv"
 
   }
 
