@@ -165,7 +165,7 @@ resource "null_resource" "run_ansible" {
 
   provisioner "local-exec" {
     
-    command = "sleep 30 && ansible-playbook -i '${local_file.ansible_inventory.filename}' --private-key '${local_sensitive_file.private_key.filename}' ansi.yaml -vvv"
+    command = "sleep 30 && ansible-playbook -i '${local_file.ansible_inventory.filename}' --private-key '${local_sensitive_file.private_key.filename}' vm.yaml -vvv"
 
   }
 
